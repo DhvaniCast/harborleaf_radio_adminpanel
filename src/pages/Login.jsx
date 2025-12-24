@@ -39,18 +39,13 @@ const Login = () => {
         borderRadius: '16px'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <img 
-            src={logo} 
-            alt="DhvaniCast Logo" 
-            style={{ 
-              width: '150px', 
-              height: 'auto', 
-              marginBottom: '20px',
-              display: 'block',
-              marginLeft: 'auto',
-              marginRight: 'auto'
-            }} 
-          />
+          <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px auto' }}>
+            <img 
+              src={logo} 
+              alt="DhvaniCast Logo" 
+              style={{ width: '64px', height: '64px', borderRadius: '50%' }} 
+            />
+          </div>
           <h1 style={{ 
             fontSize: '32px', 
             fontWeight: 'bold', 

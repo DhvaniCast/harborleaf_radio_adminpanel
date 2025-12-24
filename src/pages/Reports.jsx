@@ -171,16 +171,16 @@ const Reports = () => {
       render: (_, record) => {
         if (record.reportType === 'frequency') {
           return (
-            <div>
-              <div className="font-medium">{record.frequencyName || 'Unknown'}</div>
-              <div className="text-gray-500 text-sm">{record.frequency} MHz</div>
+            <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 160 }}>
+              <div className="font-medium" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{record.frequencyName || 'Unknown'}</div>
+              <div className="text-gray-500 text-sm" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{record.frequency} MHz</div>
             </div>
           );
         }
         return (
-          <div>
-            <div className="font-medium">{record.reportedUser?.name || 'Unknown'}</div>
-            <div className="text-gray-500 text-sm">{record.reportedUser?.email || 'N/A'}</div>
+          <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 160 }}>
+            <div className="font-medium" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{record.reportedUser?.name || 'Unknown'}</div>
+            <div className="text-gray-500 text-sm" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{record.reportedUser?.email || 'N/A'}</div>
           </div>
         );
       },
@@ -189,22 +189,9 @@ const Reports = () => {
       title: 'Reported By',
       key: 'reportedBy',
       render: (_, record) => (
-        <div>
-          <div>{record.reportedBy?.name || 'Unknown'}</div>
-          <div className="text-gray-500 text-sm">{record.reportedBy?.email}</div>
-        </div>
-      ),
-    },
-    {
-      title: 'Reason',
-      dataIndex: 'reason',
-      key: 'reason',
-      render: (reason, record) => (
-        <div>
-          <div className="font-medium">{getReasonLabel(reason)}</div>
-          {record.details && (
-            <div className="text-gray-500 text-sm truncate max-w-xs">{record.details}</div>
-          )}
+        <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 120 }}>
+          <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{record.reportedBy?.name || 'Unknown'}</div>
+          <div className="text-gray-500 text-sm" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{record.reportedBy?.email}</div>
         </div>
       ),
     },
@@ -218,7 +205,9 @@ const Reports = () => {
       title: 'Date',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (date) => formatDateTime(date),
+      render: (date) => (
+        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'inline-block', maxWidth: 110 }}>{formatDateTime(date)}</span>
+      ),
     },
     {
       title: 'Actions',
@@ -226,17 +215,19 @@ const Reports = () => {
       render: (_, record) => (
         <Space>
           <Button
-            type="primary"
+            type="text"
             size="small"
             icon={<EyeOutlined />}
+            style={{ padding: 0, background: 'none', border: 'none', color: '#1677ff' }}
             onClick={() => showReportDetails(record)}
           >
             Review
           </Button>
           <Button
-            danger
+            type="text"
             size="small"
             icon={<DeleteOutlined />}
+            style={{ padding: 0, background: 'none', border: 'none', color: '#ff4d4f' }}
             onClick={() => handleDelete(record._id)}
           >
             Delete
@@ -254,14 +245,15 @@ const Reports = () => {
     { key: 'dismissed', label: 'Dismissed' },
   ];
 
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Reports Management</h1>
 
       {/* Statistics */}
       {stats && (
-        <Row gutter={16} className="mb-6">
-          <Col span={6}>
+        <Row gutter={[16, 16]} className="mb-6">
+          <Col xs={24} sm={12} md={6}>
             <Card>
               <Statistic
                 title="Total Reports"
@@ -270,7 +262,7 @@ const Reports = () => {
               />
             </Card>
           </Col>
-          <Col span={6}>
+          <Col xs={24} sm={12} md={6}>
             <Card>
               <Statistic
                 title="Pending"
@@ -280,7 +272,7 @@ const Reports = () => {
               />
             </Card>
           </Col>
-          <Col span={6}>
+          <Col xs={24} sm={12} md={6}>
             <Card>
               <Statistic
                 title="Resolved"
@@ -290,7 +282,7 @@ const Reports = () => {
               />
             </Card>
           </Col>
-          <Col span={6}>
+          <Col xs={24} sm={12} md={6}>
             <Card>
               <Statistic
                 title="Resolution Rate"
@@ -304,22 +296,27 @@ const Reports = () => {
       )}
 
       {/* Reports Table */}
-      <Card>
-        <Tabs
-          activeKey={filter}
-          onChange={setFilter}
-          items={tabItems}
-          className="mb-4"
-        />
-        
-        <Table
-          columns={columns}
-          dataSource={reports}
-          rowKey="_id"
-          loading={loading}
-          pagination={pagination}
-          onChange={handleTableChange}
-        />
+      <Card bodyStyle={{ padding: 0 }} style={{ overflowX: 'auto' }}>
+        <div style={{ marginLeft: 16, marginTop: 8, marginBottom: 16 }}>
+          <Tabs
+            activeKey={filter}
+            onChange={setFilter}
+            items={tabItems}
+            className="mb-4"
+            tabBarStyle={{ marginBottom: 0 }}
+          />
+        </div>
+        <div style={{ width: '100%', overflowX: 'auto' }}>
+          <Table
+            columns={columns}
+            dataSource={reports}
+            rowKey="_id"
+            loading={loading}
+            pagination={pagination}
+            onChange={handleTableChange}
+            scroll={{ x: 900 }}
+          />
+        </div>
       </Card>
 
       {/* Review Modal */}
@@ -332,7 +329,9 @@ const Reports = () => {
           setAdminNotes('');
         }}
         footer={null}
-        width={700}
+        width={window.innerWidth < 800 ? '98vw' : 700}
+        style={window.innerWidth < 800 ? { top: 10, padding: 0 } : {}}
+        bodyStyle={window.innerWidth < 800 ? { padding: 8 } : {}}
       >
         {selectedReport && (
           <div>
@@ -406,7 +405,7 @@ const Reports = () => {
             </div>
 
             {/* Action Buttons */}
-            <Space className="w-full justify-end">
+            <Space className="w-full justify-end" style={{ flexWrap: 'wrap', gap: 8 }}>
               <Button onClick={() => handleStatusChange(selectedReport._id, 'reviewing')}>
                 Mark as Reviewing
               </Button>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Row, Col, Card, Table, Tag, Space, Spin } from 'antd';
 import {
   UserOutlined,
@@ -10,6 +10,7 @@ import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, L
 import StatCard from '../components/StatCard';
 import { userService } from '../services/userService';
 import { frequencyService } from '../services/frequencyService';
+import { connectSocket, getSocket } from '../services/socketService';
 import { formatNumber, formatDateTime } from '../utils/formatters';
 import { useCountdown } from '../hooks/useCountdown';
 
@@ -25,6 +26,35 @@ const Dashboard = () => {
   const [privateFrequencies, setPrivateFrequencies] = useState([]);
   const [dailyActiveData, setDailyActiveData] = useState([]);
   const [userGrowthData, setUserGrowthData] = useState([]);
+
+
+  // Socket connection and real-time dashboard stats
+  const socketRef = useRef(null);
+
+  useEffect(() => {
+    // Connect socket if not already connected
+    if (!socketRef.current) {
+      // TODO: Replace with actual token logic if needed
+      socketRef.current = connectSocket();
+    }
+    const socket = socketRef.current;
+
+    // Listen for dashboard stats updates
+    socket.on('dashboard_stats', (data) => {
+      setStats({
+        totalUsers: data.totalUsers,
+        activeFrequencies: data.activeFrequencies,
+        privateFrequencies: data.privateFrequencies,
+        dailyActiveUsers: data.dailyActiveUsers,
+      });
+    });
+
+    return () => {
+      if (socket) {
+        socket.off('dashboard_stats');
+      }
+    };
+  }, []);
 
   useEffect(() => {
     fetchDashboardData();

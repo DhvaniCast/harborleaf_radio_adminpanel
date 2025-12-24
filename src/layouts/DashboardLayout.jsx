@@ -69,19 +69,23 @@ const DashboardLayout = () => {
           bottom: 0,
         }}
       >
-        <div style={{ height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #1f1f1f', padding: '8px' }}>
+        <div style={{ height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #1f1f1f', padding: '8px', marginTop: '16px' }}>
           {collapsed ? (
-            <img 
-              src={logo} 
-              alt="HL" 
-              style={{ width: '40px', height: 'auto' }} 
-            />
+            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img 
+                src={logo} 
+                alt="HL" 
+                style={{ width: '32px', height: '32px', borderRadius: '50%' }} 
+              />
+            </div>
           ) : (
-            <img 
-              src={logo} 
-              alt="HarborLeaf Radio" 
-              style={{ width: '120px', height: 'auto' }} 
-            />
+            <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img 
+                src={logo} 
+                alt="HarborLeaf Radio" 
+                style={{ width: '56px', height: '56px', borderRadius: '50%' }} 
+              />
+            </div>
           )}
         </div>
         <Menu

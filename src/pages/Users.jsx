@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card, Table, Tag, Button, Input, Space, Modal, message } from 'antd';
 import { SearchOutlined, EyeOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
 import { userService } from '../services/userService';
+import { connectSocket, getSocket } from '../services/socketService';
 import { formatDateTime, formatNumber } from '../utils/formatters';
 
 const Users = () => {
@@ -12,12 +13,95 @@ const Users = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [detailsVisible, setDetailsVisible] = useState(false);
 
+
+  // Socket connection and real-time user status updates
+  const socketRef = useRef(null);
+
+  useEffect(() => {
+    // Connect socket if not already connected
+    if (!socketRef.current) {
+      // TODO: Replace with actual token logic if needed
+      socketRef.current = connectSocket();
+    }
+    const socket = socketRef.current;
+
+    // Listen for user status changes
+    socket.on('user_status_changed', (data) => {
+      console.log('🔔 [SOCKET] user_status_changed:', data);
+      // data: { userId, status }
+      setUsers((prevUsers) => prevUsers.map(u =>
+        u._id === data.userId ? { ...u, isOnline: data.status === 'online' } : u
+      ));
+    });
+
+    // Listen for user_left_frequency to mark offline
+    socket.on('user_left_frequency', (data) => {
+      console.log('🔔 [SOCKET] user_left_frequency:', data);
+      // data: { userId }
+      setUsers((prevUsers) => prevUsers.map(u =>
+        u._id === data.userId ? { ...u, isOnline: false } : u
+      ));
+    });
+
+    // Listen for user_joined_frequency to mark user online IMMEDIATELY
+    socket.on('user_joined_frequency', (data) => {
+      console.log('🔔 [SOCKET] user_joined_frequency:', data);
+      // data: { user: { _id } }
+      if (data && data.user && data.user._id) {
+        console.log(`✅ [SOCKET] User ${data.user._id} joined - marking as ONLINE`);
+        setUsers((prevUsers) => prevUsers.map(u =>
+          u._id === data.user._id ? { ...u, isOnline: true } : u
+        ));
+      }
+    });
+
+    // Listen for socket connection/reconnection to sync status
+    socket.on('connect', () => {
+      console.log('✅ [SOCKET] Connected - syncing user status');
+      // Refresh user list on connect to sync online status
+      fetchUsers();
+    });
+
+    socket.on('disconnect', () => {
+      console.log('❌ [SOCKET] Disconnected');
+    });
+
+    return () => {
+      if (socket) {
+        socket.off('user_status_changed');
+        socket.off('user_left_frequency');
+        socket.off('user_joined_frequency');
+        socket.off('connect');
+        socket.off('disconnect');
+      }
+    };
+  }, []);
+
+  // Fetch fresh user data on component mount and page visibility change
+  useEffect(() => {
+    // Initial fetch on mount
+    console.log('📄 Page mounted - fetching fresh user data');
+    fetchUsers();
+
+    // Re-fetch when tab becomes visible (page returns to focus)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log('👀 Page is now visible - refreshing user status');
+        fetchUsers();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   useEffect(() => {
     fetchUsers();
   }, [pagination.current, pagination.pageSize, searchText]);
 
   const fetchUsers = async () => {
-    setLoading(true);
     try {
       console.log('👥 Fetching users...');
       const response = await userService.getAllUsers({
@@ -41,8 +125,6 @@ const Users = () => {
       console.error('❌ Failed to fetch users:', error);
       message.error('Failed to fetch users');
       setUsers([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -93,9 +175,9 @@ const Users = () => {
       dataIndex: 'name',
       key: 'name',
       render: (name, record) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 140 }}>
           <UserOutlined className="text-gray-500" />
-          <span className="font-medium">{name || 'N/A'}</span>
+          <span className="font-medium" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name || 'N/A'}</span>
         </div>
       ),
     },
@@ -134,7 +216,9 @@ const Users = () => {
       title: 'Joined',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (date) => formatDateTime(date),
+      render: (date) => (
+        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'inline-block', maxWidth: 110 }}>{formatDateTime(date)}</span>
+      ),
     },
     {
       title: 'Actions',
@@ -179,15 +263,17 @@ const Users = () => {
           />
         </div>
 
-        <Table
-          dataSource={users}
-          columns={columns}
-          rowKey="_id"
-          loading={loading}
-          pagination={pagination}
-          onChange={handleTableChange}
-          scroll={{ x: 1000 }}
-        />
+        <div style={{ overflowX: 'auto', scrollbarWidth: 'none' }} className="hide-scrollbar">
+          <Table
+            dataSource={users}
+            columns={columns}
+            rowKey="_id"
+            loading={loading}
+            pagination={pagination}
+            onChange={handleTableChange}
+            scroll={{ x: 1000 }}
+          />
+        </div>
       </Card>
 
       <Modal
@@ -247,3 +333,11 @@ const Users = () => {
 };
 
 export default Users;
+
+// Hide scrollbar for Ant Design Table
+const style = document.createElement('style');
+style.innerHTML = `
+  .ant-table-content::-webkit-scrollbar, .ant-table-body::-webkit-scrollbar { display: none !important; height: 0 !important; }
+  .ant-table-content, .ant-table-body { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+`;
+document.head.appendChild(style);
