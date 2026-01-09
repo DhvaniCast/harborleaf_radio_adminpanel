@@ -5,6 +5,7 @@ import {
   UserOutlined,
   RadarChartOutlined,
   FlagOutlined,
+  HistoryOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -42,6 +43,11 @@ const DashboardLayout = () => {
       icon: <FlagOutlined />,
       label: 'Reports',
     },
+    {
+      key: '/join-history',
+      icon: <HistoryOutlined />,
+      label: 'Join History',
+    },
   ];
 
   const handleLogout = () => {
@@ -72,18 +78,18 @@ const DashboardLayout = () => {
         <div style={{ height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #1f1f1f', padding: '8px', marginTop: '16px' }}>
           {collapsed ? (
             <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <img 
-                src={logo} 
-                alt="HL" 
-                style={{ width: '32px', height: '32px', borderRadius: '50%' }} 
+              <img
+                src={logo}
+                alt="HL"
+                style={{ width: '32px', height: '32px', borderRadius: '50%' }}
               />
             </div>
           ) : (
             <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <img 
-                src={logo} 
-                alt="HarborLeaf Radio" 
-                style={{ width: '56px', height: '56px', borderRadius: '50%' }} 
+              <img
+                src={logo}
+                alt="HarborLeaf Radio"
+                style={{ width: '56px', height: '56px', borderRadius: '50%' }}
               />
             </div>
           )}
@@ -99,11 +105,11 @@ const DashboardLayout = () => {
       </Sider>
 
       <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'margin-left 0.2s' }}>
-        <Header style={{ 
-          background: '#ffffff', 
-          padding: '0 16px', 
-          display: 'flex', 
-          alignItems: 'center', 
+        <Header style={{
+          background: '#ffffff',
+          padding: '0 16px',
+          display: 'flex',
+          alignItems: 'center',
           justifyContent: 'space-between',
           position: 'sticky',
           top: 0,
@@ -133,8 +139,8 @@ const DashboardLayout = () => {
           </div>
         </Header>
 
-        <Content style={{ 
-        //   margin: '24px 16px',
+        <Content style={{
+          //   margin: '24px 16px',
           padding: 24,
           minHeight: 280,
           background: '#f0f2f5'

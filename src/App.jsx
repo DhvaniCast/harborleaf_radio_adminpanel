@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Users from './pages/Users';
 import Frequencies from './pages/Frequencies';
 import Reports from './pages/Reports';
+import JoinHistory from './pages/JoinHistory';
 import './App.css';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
             <Route path="users" element={<Users />} />
             <Route path="frequencies" element={<Frequencies />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="join-history" element={<JoinHistory />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
